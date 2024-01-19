@@ -1,14 +1,15 @@
--- email validation to sent
+-- reset
 
-DELIMITER //
 
-CREATE TRIGGER email_validation
-AFTER UPDATE
+DELIMITER $$
+CREATE TRIGGER reset 
+BEFORE UPDATE
 ON users
-FOR EACH Row
+FOR EACH ROW
 BEGIN
-    UPDATE users
-    SET email = NEW.email;
-END;
+    IF NEW.email != OLD.email THEN
+        SET NEW.valid_email = 0;
+    END IF;
+END $$
 
 DELIMITER;
