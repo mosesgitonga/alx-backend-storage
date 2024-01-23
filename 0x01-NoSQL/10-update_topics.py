@@ -7,6 +7,9 @@ from typing import List
 
 
 def update_topics(mongo_collection, name, topics: List):
+    """
+    update topics
+    """
     filter_name = {}
     filter_name['name'] = name
 
