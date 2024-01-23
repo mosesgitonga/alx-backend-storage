@@ -3,10 +3,9 @@
 change school topics
 """
 import pymongo
-from typing import List
 
 
-def update_topics(mongo_collection, name, topics: List):
+def update_topics(mongo_collection, name, topics):
     """
     update topics
     """
