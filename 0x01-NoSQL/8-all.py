@@ -1,25 +1,15 @@
 #!/usr/bin/env python3
 """
-list docs
+List all documents in Python
 """
-from pymongo.collection import Collection
-from typing import List
+import pymongo
 
 
-def list_all(mongo_collection: Collection) -> List[dict]:
+def list_all(mongo_collection):
     """
-    Lists all documents in a MongoDB collection.
-
-    Args:
-        mongo_collection (pymongo.collection.Collection):
-         The MongoDB collection.
-
-    Returns:
-        List[dict]: A list of dictionaries representing
-        the documents in the collection.
+    function to list all doc in a collection
     """
-    cursor = mongo_collection.find({})
-    documents = list(cursor)
-    cursor.close()
-
-    return documents
+    if not mongo_collection:
+        return []
+    documents = mongo_collection.find()
+    return [post for post in documents]
