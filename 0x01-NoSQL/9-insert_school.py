@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import pymongo
 """
 returns id of new created school
 """
+import pymongo
 
 
 def insert_school(mongo_collection, **kwargs):
