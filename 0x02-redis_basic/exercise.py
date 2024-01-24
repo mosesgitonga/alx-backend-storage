@@ -7,6 +7,15 @@ import uuid
 from typing import List, Union, Callable, Optional
 from functools import wraps
 
+def count_calls(method: Callable) -> Callable:
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        wrapper function
+        """
+        self._redis.incr(method.__qualname__)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 class Cache:
     """
@@ -19,16 +28,7 @@ class Cache:
         self._redis = redis.Redis(host='localhost', port=6379, db=0)
         self._redis.flushdb()
         self.calls_counter = {}
-
-    @staticmethod
-    def count_calls(method: Callable) -> Callable:
-        @wraps(method)
-        def wrapper(cls, *args, **kwargs):
-            key = method.__qualname__
-            cls.calls_counter[key] = cls.calls_counter.get(key, 0) + 1
-            result = method(cls, *args, **kwargs)
-            return result
-        return wrapper
+  
 
     @count_calls
     def store(self, data: Union[str, int, bytes, float]) -> str:
