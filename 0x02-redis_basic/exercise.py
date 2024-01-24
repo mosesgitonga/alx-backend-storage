@@ -5,8 +5,10 @@ creating a simple cache
 import redis
 import uuid
 from typing import List, Union, Callable, Optional
+from functools import wrap
 
 
+@count_calls
 class Cache:
     """
     writing strings to redis
@@ -17,7 +19,19 @@ class Cache:
         """
         self._redis = redis.Redis(host='localhost', port=6379, db=0)
         self._redis.flushdb()
+        self.calls_counter = {}
 
+    @staticmethod
+    def count_calls(method: Callable) -> Callable:
+        @wraps(method)
+        def wrapper(*args, **kwargs):
+            key = method.__qualname__
+            self.calls_counter[key] = self.calls_counter.get(key, 0) + 1
+            result = method(self, *args, **kwargs)
+            return result
+        return wrapper
+
+    @count_calls
     def store(self, data: Union[str, int, bytes, float]) -> str:
         key = str(uuid.uuid4())
         self._redis.set(key, data)
