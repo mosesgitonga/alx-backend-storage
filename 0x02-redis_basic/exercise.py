@@ -8,23 +8,22 @@ from typing import List, Union, Callable, Optional
 from functools import wraps
 
 
-def call_history(method: Callable) -> Callable:
+def replay(method: Callable) -> None:
     """
-    decorates a method to record its input output history
+    displays the history of calls made by a particular method by retrieving
+    the inputs and outputs saved on the redis store
     """
+    meth_name = method.__qualname__
+    redis_db = method.__self__._redis
+    inputs = redis_db.lrange(meth_name + ":inputs", 0, -1)
+    outputs = redis_db.lrange(meth_name + ":outputs", 0, -1)
 
-    @wraps(method)
-    def wrapper(self, *args, **kwargs):
-        """
-        wrapper function
-        """
-        meth_name = method.__qualname__
-        self._redis.rpush(meth_name + ":inputs", str(args))
-        output = method(self, *args, **kwargs)
-        self._redis.rpush(meth_name + ":outputs", output)
-        return output
+    print(f"{meth_name} was called {len(inputs)} times:")
+    for input, output in zip(inputs, outputs):
+        input = input.decode("utf-8")
+        output = output.decode("utf-8")
+        print(f"{meth_name}(*{input}) -> {output}")
 
-    return wrapper
 
 def call_history(method: Callable) -> Callable:
     """
