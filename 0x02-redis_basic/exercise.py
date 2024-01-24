@@ -5,10 +5,9 @@ creating a simple cache
 import redis
 import uuid
 from typing import List, Union, Callable, Optional
-from functools import wrap
+from functools import wraps
 
 
-@count_calls
 class Cache:
     """
     writing strings to redis
@@ -24,10 +23,10 @@ class Cache:
     @staticmethod
     def count_calls(method: Callable) -> Callable:
         @wraps(method)
-        def wrapper(*args, **kwargs):
+        def wrapper(cls, *args, **kwargs):
             key = method.__qualname__
-            self.calls_counter[key] = self.calls_counter.get(key, 0) + 1
-            result = method(self, *args, **kwargs)
+            cls.calls_counter[key] = cls.calls_counter.get(key, 0) + 1
+            result = method(cls, *args, **kwargs)
             return result
         return wrapper
 
