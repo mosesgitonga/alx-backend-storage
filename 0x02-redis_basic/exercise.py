@@ -7,6 +7,25 @@ import uuid
 from typing import List, Union, Callable, Optional
 from functools import wraps
 
+
+def call_history(method: Callable) -> Callable:
+    """
+    decorates a method to record its input output history
+    """
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """
+        wrapper function
+        """
+        meth_name = method.__qualname__
+        self._redis.rpush(meth_name + ":inputs", str(args))
+        output = method(self, *args, **kwargs)
+        self._redis.rpush(meth_name + ":outputs", output)
+        return output
+
+    return wrapper
+
 def count_calls(method: Callable) -> Callable:
     @wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -29,7 +48,7 @@ class Cache:
         self._redis.flushdb()
         self.calls_counter = {}
   
-
+    @call_history
     @count_calls
     def store(self, data: Union[str, int, bytes, float]) -> str:
         key = str(uuid.uuid4())
